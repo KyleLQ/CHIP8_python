@@ -23,7 +23,9 @@ class Chip8:
         self.sp = 0
         # registers
         # display
-        with open(f"ROMS/{rom_name}", "r+") as rom:
+
+        # rb+ to read in binary mode. DON'T OPEN IN ANY OTHER WAY, OR RISK CORRUPTING DATA
+        with open(f"ROMS/{rom_name}", "rb+") as rom:
             self.rom = rom.read()
 
         self.init_fontset()
@@ -50,3 +52,4 @@ class Chip8:
 
     def load_rom(self):
         # !!!
+        a = 1

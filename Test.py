@@ -8,9 +8,11 @@ from Chip8 import Chip8
 
 
 if __name__ == '__main__':
-    Chip8 = Chip8("test_opcode.80")
+    Chip8 = Chip8("test_opcode.ch8")
     print(len(Chip8.memory))
     print(Chip8.memory[0x9f])
     print(Chip8.memory[102])
     print(Chip8.pc)
     print(Chip8.rom)
+    # b'\x12N\xea\xac\xaa\xea\xce\xaa\xaa\xae\xe0\xa0\xa0\xe0\xc0@@\xe0\xe0 \xc0\xe0\xe0` \xe0\xa0\xe0  `@
+    # what's up with this?
