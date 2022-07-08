@@ -24,12 +24,8 @@ class Chip8:
         # registers
         # display
 
-        # rb+ to read in binary mode. DON'T OPEN IN ANY OTHER WAY, OR RISK CORRUPTING DATA
-        with open(f"ROMS/{rom_name}", "rb+") as rom:
-            self.rom = rom.read()
-
         self.init_fontset()
-        self.load_rom()
+        self.load_rom(rom_name)
 
     # store the font data from 0 to F in memory 0x50 - 0x9f
     def init_fontset(self):
@@ -50,6 +46,13 @@ class Chip8:
         self.memory[0x96:0x9b] = [0xF0, 0x80, 0xF0, 0x80, 0xF0]  # E
         self.memory[0x9b:0xA0] = [0xF0, 0x80, 0xF0, 0x80, 0x80]  # F
 
-    def load_rom(self):
-        # !!!
-        a = 1
+    def load_rom(self, rom_name):
+
+        address = 0x200
+        # rb+ to read in binary mode. DON'T OPEN IN ANY OTHER WAY, OR RISK CORRUPTING DATA
+        with open(f"ROMS/{rom_name}", "rb") as rom:
+            byte = rom.read(1)
+            while byte != b"":
+                self.memory[address] = int(byte.hex(),16)
+                address += 0x1
+                byte = rom.read(1)
