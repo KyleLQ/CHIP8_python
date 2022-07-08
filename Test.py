@@ -30,7 +30,9 @@ if __name__ == '__main__':
 
     #print(str(r'{0:#x}'.format(Chip8._fetch())))  #4686
 
-    Chip8.do_CPU_cycle()
+    print((123 - 17 + 0x100) & 0x0ff)
+
+    #Chip8.do_CPU_cycle()
 
 
     # b'\x12N\xea\xac\xaa\xea\xce\xaa\xaa\xae\xe0\xa0\xa0\xe0\xc0@@\xe0\xe0 \xc0\xe0\xe0` \xe0\xa0\xe0  `@
@@ -40,3 +42,10 @@ if __name__ == '__main__':
     # https://stackoverflow.com/questions/56523036/i-read-image-file-as-binary-strange-symbols-appear
     # for i in open(f"ROMS/{rom_name}", 'rb').read():
     # print(r'{0:#x}'.format(i), end=' ')
+
+
+    # negative values???
+    # left bit shift???
+
+    # https://www.emutalk.net/threads/chip-8.19894/page-26
+    # look at #505 for subtraction !!!!

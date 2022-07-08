@@ -87,13 +87,54 @@ class Chip8:
                     self.pc = self.stack[self.sp]
                     self.sp -= 1
             case 0x1:
+                self.pc = (second_nibble << 8) + (third_nibble << 4) + fourth_nibble
             case 0x2:
+                self.sp += 1
+                self.stack[self.sp] = self.pc
+                self.pc = (second_nibble << 8) + (third_nibble << 4) + fourth_nibble
             case 0x3:
+                comp_to = (third_nibble << 4) + fourth_nibble
+                if comp_to == self.registers[second_nibble]:
+                    self.pc += 2
             case 0x4:
+                comp_to = (third_nibble << 4) + fourth_nibble
+                if comp_to != self.registers[second_nibble]:
+                    self.pc += 2
             case 0x5:
+                if self.registers[second_nibble] == self.registers[third_nibble]:
+                    self.pc += 2
             case 0x6:
+                self.registers[second_nibble] = (third_nibble << 4) + fourth_nibble
             case 0x7:
+                self.registers[second_nibble] += (third_nibble << 4) + fourth_nibble
             case 0x8:
+                match fourth_nibble:
+                    case 0x0:
+                        self.registers[second_nibble] = self.registers[third_nibble]
+                    case 0x1:
+                        self.registers[second_nibble] = self.registers[second_nibble] | self.registers[third_nibble]
+                    case 0x2:
+                        self.registers[second_nibble] = self.registers[second_nibble] & self.registers[third_nibble]
+                    case 0x3:
+                        self.registers[second_nibble] = self.registers[second_nibble] ^ self.registers[third_nibble]
+                    case 0x4:
+                        res = self.registers[second_nibble] + self.registers[third_nibble]
+                        if res > 255:
+                            self.registers[0xf] = 1
+                            self.registers[second_nibble] = res & 0x0ff
+                        else:
+                            self.registers[0xf] = 0
+                            self.registers[second_nibble] = res
+                    case 0x5:
+                        if self.registers[second_nibble] > self.registers[third_nibble]:
+                            self.registers[0xf] == 1
+                        else:
+                            self.registers[0xf] == 0
+                        self.registers[second_nibble] = (self.registers[second_nibble] - self.registers[third_nibble] + 0x100) & 0x0ff
+                    case 0x6:
+                    case 0x7:
+                    case 0xe:
+                    case _:
             case 0x9:
             case 0xa:
             case 0xb:
