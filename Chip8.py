@@ -15,20 +15,25 @@ class Chip8:
     stack pointer
     """
 
+    ROWS = 32
+    COLS = 64
+
     def __init__(self,rom_name):
         self.memory = [0] * 0x1000
         self.pc = 0x200
-        self.opcode = 0
         self.I = 0
-        self.sp = 0
-        # registers
-        # display
+        self.stack = [0] * 16
+        self.sp = -1 # !!! index of the stack
+        self.registers = [0] * 16
+        self.display = [[0] * self.COLS for i in range(self.ROWS)] # display is 32 rows by 64 columns
 
-        self.init_fontset()
-        self.load_rom(rom_name)
+        # timers...
+
+        self._init_fontset()
+        self._load_rom(rom_name)
 
     # store the font data from 0 to F in memory 0x50 - 0x9f
-    def init_fontset(self):
+    def _init_fontset(self):
         self.memory[0x50:0x55] = [0xF0, 0x90, 0x90, 0x90, 0xF0]  # 0
         self.memory[0x55:0x5a] = [0x20, 0x60, 0x20, 0x20, 0x70]  # 1
         self.memory[0x5a:0x5f] = [0xF0, 0x10, 0xF0, 0x80, 0xF0]  # 2
@@ -46,7 +51,7 @@ class Chip8:
         self.memory[0x96:0x9b] = [0xF0, 0x80, 0xF0, 0x80, 0xF0]  # E
         self.memory[0x9b:0xA0] = [0xF0, 0x80, 0xF0, 0x80, 0x80]  # F
 
-    def load_rom(self, rom_name):
+    def _load_rom(self, rom_name):
 
         address = 0x200
         # rb+ to read in binary mode. DON'T OPEN IN ANY OTHER WAY, OR RISK CORRUPTING DATA
@@ -56,3 +61,45 @@ class Chip8:
                 self.memory[address] = int(byte.hex(),16)
                 address += 0x1
                 byte = rom.read(1)
+
+    def do_CPU_cycle(self):
+        instruction = self._fetch()
+        self._decode_execute(instruction)
+
+    def _fetch(self):
+        instruction = (self.memory[self.pc] << 8) + self.memory[self.pc + 1]
+        self.pc += 2
+        return instruction
+
+    def _decode_execute(self, instruction):
+        first_nibble = instruction >> 12
+        second_nibble = (instruction & 0x0f00) >> 8
+        third_nibble = (instruction & 0x00f0) >> 4
+        fourth_nibble = instruction & 0x000f
+
+        match first_nibble:
+            case 0x0:  # ignoring the 0nnn SYS address instruction
+                if fourth_nibble == 0x0:
+                    for row in range(0, self.ROWS):
+                        for col in range(0, self.COLS):
+                            self.display[row][col] = 0
+                else:
+                    self.pc = self.stack[self.sp]
+                    self.sp -= 1
+            case 0x1:
+            case 0x2:
+            case 0x3:
+            case 0x4:
+            case 0x5:
+            case 0x6:
+            case 0x7:
+            case 0x8:
+            case 0x9:
+            case 0xa:
+            case 0xb:
+            case 0xc:
+            case 0xd:
+            case 0xe:
+            case 0xf:
+            case _:
+                # throw exception ...
