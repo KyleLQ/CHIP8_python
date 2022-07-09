@@ -10,7 +10,7 @@ import pygame
 
 
 if __name__ == '__main__':
-    Chip8 = Chip8("test_opcode.ch8")
+    Chip8 = Chip8("IBM Logo.ch8")
     pygame.init()
     screen = pygame.display.set_mode([64 * 16, 32 * 16])
     screen.fill((255,255,255))

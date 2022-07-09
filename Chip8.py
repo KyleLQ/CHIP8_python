@@ -171,17 +171,38 @@ class Chip8:
                 start_x = self.registers[second_nibble]
                 start_y = self.registers[third_nibble]
                 for y in range(fourth_nibble):
-                    sprite_row = sprite_data[y]
                     for x in range(8):
                         bit = (sprite_data[y] & (0b00000001 << (7 - x))) >> (7 - x)
                         if (self.display[(start_y + y) % self.ROWS][(start_x + x) % self.COLS] == 1) and (bit == 1):
                             erased_pixels = 1
                         self.display[(start_y + y) % self.ROWS][(start_x + x) % self.COLS] ^= bit
                 self.registers[0xf] = erased_pixels
-                """
             case 0xe:
+                if third_nibble == 0x9:
+                else:
             case 0xf:
-            """
+                second_byte = (third_nibble << 4) + fourth_nibble
+                match second_byte:
+                    case 0x07:
+                    case 0x0a:
+                    case 0x15:
+                    case 0x18:
+                    case 0x1e:
+                        self.I += self.registers[second_nibble]
+                    case 0x29:
+                        self.I = 0x50 + self.registers[second_nibble] * 0x5
+                    case 0x33:
+                        self.memory[self.I] = (self.registers[second_nibble] - (self.registers[second_nibble] % 100)) / 100
+                        self.memory[self.I + 1] = ((self.registers[second_nibble] % 100) - (self.registers[second_nibble] % 10)) / 10
+                        self.memory[self.I + 2] = self.registers[second_nibble] % 10
+                    case 0x55:
+                        for loc in range(0, 0x10):
+                            self.memory[self.I + loc] = self.registers[loc]
+                    case 0x65:
+                        for loc in range(0, 0x10):
+                            self.registers[loc] = self.memory[self.I + loc]
+                    case _:
+                        raise InvalidInstruction(instruction)
             case _:
                 raise InvalidInstruction(instruction)
 
