@@ -1,4 +1,6 @@
 from Chip8 import Chip8
+from Chip8 import InvalidInstruction
+import pygame
 
 # Best Resources:
 # http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
@@ -9,6 +11,23 @@ from Chip8 import Chip8
 
 if __name__ == '__main__':
     Chip8 = Chip8("test_opcode.ch8")
+    pygame.init()
+    screen = pygame.display.set_mode([64 * 16, 32 * 16])
+    screen.fill((255,255,255))
+    pygame.draw.rect(screen, (0,0,0,), (200,200,10,10))
+
+
+    while True:
+        pygame.event.pump()
+        Chip8.do_CPU_cycle()
+        for x in range(64):
+            for y in range(32):
+                if Chip8.display[y][x] == 1:
+                    pygame.draw.rect(screen, (255,255,255), (x * 16,y * 16,16,16))
+                else:
+                    pygame.draw.rect(screen, (0,0,0), (x * 16,y * 16,16,16))
+        pygame.display.flip()
+
     """
     print(len(Chip8.memory))
     print(Chip8.memory[0x9f])
@@ -30,7 +49,8 @@ if __name__ == '__main__':
 
     #print(str(r'{0:#x}'.format(Chip8._fetch())))  #4686
 
-    print((123 - 17 + 0x100) & 0x0ff)
+    #print((123 - 17 + 0x100) & 0x0ff)
+    #raise InvalidInstruction(7868)
 
     #Chip8.do_CPU_cycle()
 

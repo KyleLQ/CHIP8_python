@@ -1,3 +1,5 @@
+from random import randrange
+
 class Chip8:
     """
     This class should handle everything related to the CPU and memory and stuff.
@@ -132,15 +134,62 @@ class Chip8:
                             self.registers[0xf] == 0
                         self.registers[second_nibble] = (self.registers[second_nibble] - self.registers[third_nibble] + 0x100) & 0x0ff
                     case 0x6:
+                        if self.registers[second_nibble] % 2 == 1:
+                            self.registers[0xf] = 1
+                        else:
+                            self.registers[0xf] = 0
+                        self.registers[second_nibble] = self.registers[second_nibble] >> 1
                     case 0x7:
+                        if self.registers[third_nibble] > self.registers[second_nibble]:
+                            self.registers[0xf] == 1
+                        else:
+                            self.registers[0xf] == 0
+                        self.registers[second_nibble] = (self.registers[third_nibble] - self.registers[second_nibble] + 0x100) & 0x0ff
                     case 0xe:
+                        if self.registers[second_nibble] >= 0x80:
+                            self.registers[0xf] = 1
+                        else:
+                            self.registers[0xf] = 0
+                        self.registers[second_nibble] = (self.registers[second_nibble] << 1) & 0x0ff
                     case _:
+                        raise InvalidInstruction(instruction)
             case 0x9:
+                if self.registers[second_nibble] != self.registers[third_nibble]:
+                    self.pc += 2
             case 0xa:
+                self.I = (second_nibble << 8) + (third_nibble << 4) + fourth_nibble
             case 0xb:
+                self.pc = (second_nibble << 8) + (third_nibble << 4) + fourth_nibble + self.registers[0]
             case 0xc:
-            case 0xd:
+                self.registers[second_nibble] = ((third_nibble << 4) + fourth_nibble) & randrange(0, 256)
+            case 0xd:  # todo check!
+                erased_pixels = 0
+                sprite_data = [0] * fourth_nibble
+                for index in range(fourth_nibble):
+                    sprite_data[index] = self.memory[self.I + index]
+
+                start_x = self.registers[second_nibble]
+                start_y = self.registers[third_nibble]
+                for y in range(fourth_nibble):
+                    sprite_row = sprite_data[y]
+                    for x in range(8):
+                        bit = (sprite_data[y] & (0b00000001 << (7 - x))) >> (7 - x)
+                        if (self.display[(start_y + y) % self.ROWS][(start_x + x) % self.COLS] == 1) and (bit == 1):
+                            erased_pixels = 1
+                        self.display[(start_y + y) % self.ROWS][(start_x + x) % self.COLS] ^= bit
+                self.registers[0xf] = erased_pixels
+                """
             case 0xe:
             case 0xf:
+            """
             case _:
-                # throw exception ...
+                raise InvalidInstruction(instruction)
+
+class InvalidInstruction(Exception):
+
+    def __init__(self, instruction, *args):
+        super().__init__(args)
+        self.instruction = instruction
+
+    def __str__(self):
+        return f'The instruction {hex(self.instruction)} is not valid'
