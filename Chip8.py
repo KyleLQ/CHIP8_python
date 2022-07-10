@@ -28,8 +28,9 @@ class Chip8:
         self.sp = -1 # !!! index of the stack
         self.registers = [0] * 16
         self.display = [[0] * self.COLS for i in range(self.ROWS)] # display is 32 rows by 64 columns
-
-        # timers...
+        self.delay_timer = 0
+        self.sound_timer = 0
+        self.keypad = [0] * 16  # 0 = not pressed, 1 = pressed
 
         self._init_fontset()
         self._load_rom(rom_name)
@@ -179,14 +180,30 @@ class Chip8:
                 self.registers[0xf] = erased_pixels
             case 0xe:
                 if third_nibble == 0x9:
+                    if self.keypad[self.registers[second_nibble]] == 1:
+                        self.pc += 2
                 else:
+                    if self.keypad[self.registers[second_nibble]] != 1:
+                        self.pc += 2
             case 0xf:
                 second_byte = (third_nibble << 4) + fourth_nibble
                 match second_byte:
                     case 0x07:
+                        self.registers[second_nibble] = self.delay_timer
                     case 0x0a:
+                        pressed_key = -1
+                        for key in range(0, 16):
+                            if self.keypad[key] == 1:
+                                pressed_key = key
+                                break
+                        if pressed_key == -1:
+                            self.pc -= 2
+                        else:
+                            self.registers[second_nibble] == pressed_key
                     case 0x15:
+                        self.delay_timer = self.registers[second_nibble]
                     case 0x18:
+                        self.sound_timer = self.registers[second_nibble]
                     case 0x1e:
                         self.I += self.registers[second_nibble]
                     case 0x29:
