@@ -1,6 +1,7 @@
 from Chip8 import Chip8
 from Chip8 import InvalidInstruction
 import pygame
+import time
 
 # Best Resources:
 # http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
@@ -8,6 +9,13 @@ import pygame
 # https://multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
 # https://en.wikipedia.org/wiki/CHIP-8
 
+# https://www.reddit.com/r/EmuDev/comments/7v7flo/duncetier_chip8_question_how_do_i_set_the_timers/
+# https://www.reddit.com/r/EmuDev/comments/ij1tx7/trying_to_make_a_chip8_emulator_a_little_lost/
+
+key_map = [pygame.K_x, pygame.K_1, pygame.K_2, pygame.K_3,
+           pygame.K_q, pygame.K_w, pygame.K_e, pygame.K_a,
+           pygame.K_s, pygame.K_d, pygame.K_z, pygame.K_c,
+           pygame.K_4, pygame.K_r, pygame.K_f, pygame.K_v]
 
 if __name__ == '__main__':
     Chip8 = Chip8("chip8-test-rom.ch8")
@@ -27,6 +35,10 @@ if __name__ == '__main__':
                 else:
                     pygame.draw.rect(screen, (0,0,0), (x * 16,y * 16,16,16))
         pygame.display.flip()
+        keys = pygame.key.get_pressed()
+        for i in range(0, 16):
+            Chip8.keypad[i] = int(keys[key_map[i]])
+
 
     """
     print(len(Chip8.memory))

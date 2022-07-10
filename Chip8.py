@@ -130,9 +130,9 @@ class Chip8:
                             self.registers[second_nibble] = res
                     case 0x5:
                         if self.registers[second_nibble] > self.registers[third_nibble]:
-                            self.registers[0xf] == 1
+                            self.registers[0xf] = 1
                         else:
-                            self.registers[0xf] == 0
+                            self.registers[0xf] = 0
                         self.registers[second_nibble] = (self.registers[second_nibble] - self.registers[third_nibble] + 0x100) & 0x0ff
                     case 0x6:
                         if self.registers[second_nibble] % 2 == 1:
@@ -142,9 +142,9 @@ class Chip8:
                         self.registers[second_nibble] = self.registers[second_nibble] >> 1
                     case 0x7:
                         if self.registers[third_nibble] > self.registers[second_nibble]:
-                            self.registers[0xf] == 1
+                            self.registers[0xf] = 1
                         else:
-                            self.registers[0xf] == 0
+                            self.registers[0xf] = 0
                         self.registers[second_nibble] = (self.registers[third_nibble] - self.registers[second_nibble] + 0x100) & 0x0ff
                     case 0xe:
                         if self.registers[second_nibble] >= 0x80:
@@ -163,7 +163,7 @@ class Chip8:
                 self.pc = (second_nibble << 8) + (third_nibble << 4) + fourth_nibble + self.registers[0]
             case 0xc:
                 self.registers[second_nibble] = ((third_nibble << 4) + fourth_nibble) & randrange(0, 256)
-            case 0xd:  # todo check!
+            case 0xd:
                 erased_pixels = 0
                 sprite_data = [0] * fourth_nibble
                 for index in range(fourth_nibble):
@@ -199,7 +199,7 @@ class Chip8:
                         if pressed_key == -1:
                             self.pc -= 2
                         else:
-                            self.registers[second_nibble] == pressed_key
+                            self.registers[second_nibble] = pressed_key
                     case 0x15:
                         self.delay_timer = self.registers[second_nibble]
                     case 0x18:
@@ -208,15 +208,15 @@ class Chip8:
                         self.I += self.registers[second_nibble]
                     case 0x29:
                         self.I = 0x50 + self.registers[second_nibble] * 0x5
-                    case 0x33:
-                        self.memory[self.I] = (self.registers[second_nibble] - (self.registers[second_nibble] % 100)) / 100
-                        self.memory[self.I + 1] = ((self.registers[second_nibble] % 100) - (self.registers[second_nibble] % 10)) / 10
+                    case 0x33:  # division produces floats !!!
+                        self.memory[self.I] = int((self.registers[second_nibble] - (self.registers[second_nibble] % 100)) / 100)
+                        self.memory[self.I + 1] = int(((self.registers[second_nibble] % 100) - (self.registers[second_nibble] % 10)) / 10)
                         self.memory[self.I + 2] = self.registers[second_nibble] % 10
                     case 0x55:
-                        for loc in range(0, 0x10):
+                        for loc in range(0, second_nibble + 1):
                             self.memory[self.I + loc] = self.registers[loc]
                     case 0x65:
-                        for loc in range(0, 0x10):
+                        for loc in range(0, second_nibble + 1):
                             self.registers[loc] = self.memory[self.I + loc]
                     case _:
                         raise InvalidInstruction(instruction)
