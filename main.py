@@ -5,8 +5,7 @@ import time
 # todo
 """
 check opcodes
-clean up code!
-Do README
+clean up code! (including extraneous files)
 """
 
 SECONDS_BETWEEN_CYCLES = 1 / 540  # 540 hz clock, sound and delay timers decrement once every 9 cycles
@@ -33,12 +32,14 @@ def draw(c8, screen):
 
 
 if __name__ == '__main__':
+    print('CHIP8 Interpreter in Python by Kyle Qi.')
     rom_name = input("Enter ROM file name: ")
     Chip8 = Chip8(rom_name)
     pygame.init()
     pygame.mixer.init()
     beep = pygame.mixer.Sound('audio/beep.wav')
     screen = pygame.display.set_mode([COLS * SCALE_FACTOR, ROWS * SCALE_FACTOR])
+    pygame.display.set_caption('Python CHIP8 Interpreter!')
 
     time_since_last_cycle = time.perf_counter()
     time_since_last_beep = time.perf_counter()
