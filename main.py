@@ -4,11 +4,13 @@ import time
 
 # todo
 """
-test with more roms
-Implement sound
-Limit the cycles of CPU
+check opcodes
+clean up code!
+Do README
 """
 
+SECONDS_BETWEEN_CYCLES = 1 / 540  # 540 hz clock, sound and delay timers decrement once every 9 cycles
+SECONDS_BETWEEN_BEEPS = 1 / 10  # to ensure audio does not sound too awful
 SCALE_FACTOR = 16
 COLS = 64
 ROWS = 32
@@ -34,27 +36,36 @@ if __name__ == '__main__':
     rom_name = input("Enter ROM file name: ")
     Chip8 = Chip8(rom_name)
     pygame.init()
+    pygame.mixer.init()
+    beep = pygame.mixer.Sound('audio/beep.wav')
     screen = pygame.display.set_mode([COLS * SCALE_FACTOR, ROWS * SCALE_FACTOR])
 
-    accumulator = 0
+    time_since_last_cycle = time.perf_counter()
+    time_since_last_beep = time.perf_counter()
+    cycles_since_last_decrement = 0
 
     while True:
 
-        begin_time = time.perf_counter()
+        if (time.perf_counter() - time_since_last_cycle) >= SECONDS_BETWEEN_CYCLES:
+            time_since_last_cycle = time.perf_counter()
+            pygame.event.pump()
+            Chip8.do_CPU_cycle()
 
-        pygame.event.pump()
-        Chip8.do_CPU_cycle()
+            if cycles_since_last_decrement == 8:
+                if Chip8.sound_timer > 0:
+                    Chip8.sound_timer -= 1
+                    if time.perf_counter() - time_since_last_beep >= SECONDS_BETWEEN_BEEPS:
+                        time_since_last_beep = time.perf_counter()
+                        pygame.mixer.Sound.play(beep)
+                if Chip8.delay_timer > 0:
+                    Chip8.delay_timer -= 1
+                cycles_since_last_decrement = -1
 
-        end_time = time.perf_counter()
-        accumulator += max((end_time - begin_time), 0.1)
-        while accumulator >= (1/60):
-            if Chip8.sound_timer > 0:
-                Chip8.sound_timer -= 1
-            if Chip8.delay_timer > 0:
-                Chip8.delay_timer -= 1
-            accumulator -= (1/60)
+            cycles_since_last_decrement += 1
 
-        draw(Chip8, screen)
-        keys = pygame.key.get_pressed()
-        for i in range(0, 16):
-            Chip8.keypad[i] = int(keys[key_map[i]])
+            draw(Chip8, screen)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE] == 1:
+                break
+            for i in range(0, 16):
+                Chip8.keypad[i] = int(keys[key_map[i]])
