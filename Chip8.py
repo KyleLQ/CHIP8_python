@@ -1,33 +1,19 @@
 from random import randrange
 
+
 class Chip8:
-    """
-    This class should handle everything related to the CPU and memory and stuff.
-    Main will actually call this class, and handle key inputs and graphics/sound display.
-
-
-    main memory (array)
-    function (constructor) to init initial memory stuff (font data)
-
-    current opcode
-    array of registers
-    index register I - e.g. a pointer to a particular memory address that instructions can manipulate
-    pc
-    2d array that represents the screen
-    stack pointer
-    """
 
     ROWS = 32
     COLS = 64
 
-    def __init__(self,rom_name):
+    def __init__(self, rom_name):
         self.memory = [0] * 0x1000
         self.pc = 0x200
         self.I = 0
         self.stack = [0] * 16
-        self.sp = -1 # !!! index of the stack
+        self.sp = -1
         self.registers = [0] * 16
-        self.display = [[0] * self.COLS for i in range(self.ROWS)] # display is 32 rows by 64 columns
+        self.display = [[0] * self.COLS for i in range(self.ROWS)]  # display is 32 rows by 64 columns
         self.delay_timer = 0
         self.sound_timer = 0
         self.keypad = [0] * 16  # 0 = not pressed, 1 = pressed
@@ -57,11 +43,10 @@ class Chip8:
     def _load_rom(self, rom_name):
 
         address = 0x200
-        # rb+ to read in binary mode. DON'T OPEN IN ANY OTHER WAY, OR RISK CORRUPTING DATA
         with open(f"ROMS/{rom_name}", "rb") as rom:
             byte = rom.read(1)
             while byte != b"":
-                self.memory[address] = int(byte.hex(),16)
+                self.memory[address] = int(byte.hex(), 16)
                 address += 0x1
                 byte = rom.read(1)
 
@@ -133,7 +118,8 @@ class Chip8:
                             self.registers[0xf] = 1
                         else:
                             self.registers[0xf] = 0
-                        self.registers[second_nibble] = (self.registers[second_nibble] - self.registers[third_nibble] + 0x100) & 0x0ff
+                        self.registers[second_nibble] = (self.registers[second_nibble] -
+                                                         self.registers[third_nibble] + 0x100) & 0x0ff
                     case 0x6:
                         if self.registers[second_nibble] % 2 == 1:
                             self.registers[0xf] = 1
@@ -145,7 +131,8 @@ class Chip8:
                             self.registers[0xf] = 1
                         else:
                             self.registers[0xf] = 0
-                        self.registers[second_nibble] = (self.registers[third_nibble] - self.registers[second_nibble] + 0x100) & 0x0ff
+                        self.registers[second_nibble] = (self.registers[third_nibble] -
+                                                         self.registers[second_nibble] + 0x100) & 0x0ff
                     case 0xe:
                         if self.registers[second_nibble] >= 0x80:
                             self.registers[0xf] = 1
@@ -208,9 +195,11 @@ class Chip8:
                         self.I += self.registers[second_nibble]
                     case 0x29:
                         self.I = 0x50 + self.registers[second_nibble] * 0x5
-                    case 0x33:  # division produces floats !!!
-                        self.memory[self.I] = int((self.registers[second_nibble] - (self.registers[second_nibble] % 100)) / 100)
-                        self.memory[self.I + 1] = int(((self.registers[second_nibble] % 100) - (self.registers[second_nibble] % 10)) / 10)
+                    case 0x33:
+                        self.memory[self.I] = int((self.registers[second_nibble] -
+                                                   (self.registers[second_nibble] % 100)) / 100)
+                        self.memory[self.I + 1] = int(((self.registers[second_nibble] % 100) -
+                                                       (self.registers[second_nibble] % 10)) / 10)
                         self.memory[self.I + 2] = self.registers[second_nibble] % 10
                     case 0x55:
                         for loc in range(0, second_nibble + 1):
@@ -222,6 +211,7 @@ class Chip8:
                         raise InvalidInstruction(instruction)
             case _:
                 raise InvalidInstruction(instruction)
+
 
 class InvalidInstruction(Exception):
 
