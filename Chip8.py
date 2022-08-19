@@ -94,7 +94,8 @@ class Chip8:
             case 0x6:
                 self.registers[second_nibble] = (third_nibble << 4) + fourth_nibble
             case 0x7:
-                self.registers[second_nibble] += (third_nibble << 4) + fourth_nibble
+                self.registers[second_nibble] += ((third_nibble << 4) + fourth_nibble)
+                self.registers[second_nibble] = self.registers[second_nibble] & 0x0ff
             case 0x8:
                 match fourth_nibble:
                     case 0x0:
