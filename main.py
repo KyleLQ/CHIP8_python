@@ -2,12 +2,6 @@ from Chip8 import Chip8
 import pygame
 import time
 
-# todo
-"""
-check opcodes
-clean up code! (including extraneous files)
-"""
-
 # CONSTANTS
 
 AUDIO_PATH = 'audio/beep.wav'

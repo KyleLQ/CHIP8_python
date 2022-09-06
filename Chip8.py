@@ -194,8 +194,9 @@ class Chip8:
                         self.sound_timer = self.registers[second_nibble]
                     case 0x1e:
                         self.I += self.registers[second_nibble]
+                        self.I = self.I & 0x0ffff
                     case 0x29:
-                        self.I = 0x50 + self.registers[second_nibble] * 0x5
+                        self.I = 0x50 + (self.registers[second_nibble] & 0x0f) * 0x5
                     case 0x33:
                         self.memory[self.I] = int((self.registers[second_nibble] -
                                                    (self.registers[second_nibble] % 100)) / 100)
